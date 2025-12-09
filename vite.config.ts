@@ -5,9 +5,9 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: '/bike-watch/',   // 👈 ADD THIS LINE
   server: {
     host: "::",
-      base: '/bike-watch/',   // 👈 ADD THIS LINE
     port: 8080,
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
