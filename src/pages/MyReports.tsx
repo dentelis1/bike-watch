@@ -6,35 +6,48 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Camera, MapPin, Calendar, Plus, Inbox } from "lucide-react";
+import { AlertTriangle, Camera, MapPin, Calendar, Plus, Inbox, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BikeReport {
   id: string;
-  brand?: string;
-  model?: string;
-  color: string;
-  uniqueFeatures?: string;
-  stolenDate: string;
-  stolenLocation: { address: string };
-  createdAt: string;
+  brand: string | null;
+  model: string | null;
+  color: string | null;
+  unique_features: string | null;
+  stolen_date: string | null;
+  stolen_location: string | null;
+  created_at: string;
 }
 
 interface BikeSighting {
   id: string;
-  location: { address: string };
-  notes?: string;
-  createdAt: string;
+  location: string;
+  notes: string | null;
+  created_at: string;
 }
 
 const MyReports = () => {
   const [reports, setReports] = useState<BikeReport[]>([]);
   const [sightings, setSightings] = useState<BikeSighting[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedReports = JSON.parse(localStorage.getItem("bikeReports") || "[]");
-    const storedSightings = JSON.parse(localStorage.getItem("bikeSightings") || "[]");
-    setReports(storedReports);
-    setSightings(storedSightings);
+    const fetchData = async () => {
+      setLoading(true);
+      
+      const [reportsRes, sightingsRes] = await Promise.all([
+        supabase.from("bike_reports").select("*").order("created_at", { ascending: false }),
+        supabase.from("bike_sightings").select("*").order("created_at", { ascending: false }),
+      ]);
+
+      if (reportsRes.data) setReports(reportsRes.data);
+      if (sightingsRes.data) setSightings(sightingsRes.data);
+      
+      setLoading(false);
+    };
+
+    fetchData();
   }, []);
 
   const EmptyState = ({ type }: { type: "stolen" | "sighting" }) => (
@@ -45,8 +58,8 @@ const MyReports = () => {
       <h3 className="text-lg font-semibold mb-2">No {type === "stolen" ? "Reports" : "Sightings"} Yet</h3>
       <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
         {type === "stolen"
-          ? "You haven't reported any stolen bikes yet."
-          : "You haven't reported any bike sightings yet."}
+          ? "No stolen bikes have been reported yet."
+          : "No bike sightings have been reported yet."}
       </p>
       <Link to={type === "stolen" ? "/report-stolen" : "/report-sighting"}>
         <Button variant="hero">
@@ -57,15 +70,27 @@ const MyReports = () => {
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-muted/30">
+        <Header />
+        <main className="flex-1 py-12 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
       <Header />
       <main className="flex-1 py-12">
         <div className="container max-w-4xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">My Reports</h1>
+            <h1 className="text-3xl font-bold mb-2">Reports Dashboard</h1>
             <p className="text-muted-foreground">
-              Track your submitted reports and sightings.
+              View all submitted reports and sightings.
             </p>
           </div>
 
@@ -97,27 +122,33 @@ const MyReports = () => {
                             <CardTitle className="text-lg">
                               {report.brand && report.model
                                 ? `${report.brand} ${report.model}`
-                                : report.color + " Bike"}
+                                : report.color ? `${report.color} Bike` : "Bike Report"}
                             </CardTitle>
                             <CardDescription className="flex items-center gap-4 mt-1">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {new Date(report.stolenDate).toLocaleDateString()}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {report.stolenLocation.address.slice(0, 30)}...
-                              </span>
+                              {report.stolen_date && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  {new Date(report.stolen_date).toLocaleDateString()}
+                                </span>
+                              )}
+                              {report.stolen_location && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {report.stolen_location.length > 30 
+                                    ? report.stolen_location.slice(0, 30) + "..." 
+                                    : report.stolen_location}
+                                </span>
+                              )}
                             </CardDescription>
                           </div>
                         </div>
                         <Badge variant="secondary">Active</Badge>
                       </div>
                     </CardHeader>
-                    {report.uniqueFeatures && (
+                    {report.unique_features && (
                       <CardContent className="pt-0">
                         <p className="text-sm text-muted-foreground">
-                          <strong>Features:</strong> {report.uniqueFeatures}
+                          <strong>Features:</strong> {report.unique_features}
                         </p>
                       </CardContent>
                     )}
@@ -143,11 +174,13 @@ const MyReports = () => {
                             <CardDescription className="flex items-center gap-4 mt-1">
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                {new Date(sighting.createdAt).toLocaleDateString()}
+                                {new Date(sighting.created_at).toLocaleDateString()}
                               </span>
                               <span className="flex items-center gap-1">
                                 <MapPin className="h-3 w-3" />
-                                {sighting.location.address.slice(0, 30)}...
+                                {sighting.location.length > 30 
+                                  ? sighting.location.slice(0, 30) + "..." 
+                                  : sighting.location}
                               </span>
                             </CardDescription>
                           </div>

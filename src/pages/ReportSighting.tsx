@@ -6,10 +6,12 @@ import ImageUpload from "@/components/ImageUpload";
 import LocationPicker from "@/components/LocationPicker";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Check, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const ReportSighting = () => {
   const navigate = useNavigate();
@@ -19,10 +21,12 @@ const ReportSighting = () => {
     image: File[];
     location: { address: string; lat?: number; lng?: number };
     notes: string;
+    contactEmail: string;
   }>({
     image: [],
     location: { address: "" },
     notes: "",
+    contactEmail: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,29 +52,32 @@ const ReportSighting = () => {
 
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    // Store in localStorage for MVP demo
-    const sightings = JSON.parse(localStorage.getItem("bikeSightings") || "[]");
-    const newSighting = {
-      id: crypto.randomUUID(),
-      image: sighting.image[0]?.name,
-      location: sighting.location,
-      notes: sighting.notes,
-      createdAt: new Date().toISOString(),
-    };
-    sightings.push(newSighting);
-    localStorage.setItem("bikeSightings", JSON.stringify(sightings));
-    
-    setIsSubmitting(false);
-    
-    toast({
-      title: "Sighting Reported",
-      description: "Thank you for helping the community!",
-    });
-    
-    navigate("/my-reports");
+    try {
+      const { error } = await supabase.from("bike_sightings").insert({
+        image: sighting.image[0]?.name || "",
+        location: sighting.location.address,
+        notes: sighting.notes || null,
+        contact_email: sighting.contactEmail || null,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Sighting Reported",
+        description: "Thank you for helping the community!",
+      });
+      
+      navigate("/my-reports");
+    } catch (error) {
+      console.error("Error submitting sighting:", error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your sighting. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -126,6 +133,18 @@ const ReportSighting = () => {
                     value={sighting.notes}
                     onChange={(e) => setSighting({ ...sighting, notes: e.target.value })}
                     rows={4}
+                  />
+                </div>
+
+                {/* Contact Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-base font-semibold">Contact Email (Optional)</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={sighting.contactEmail}
+                    onChange={(e) => setSighting({ ...sighting, contactEmail: e.target.value })}
                   />
                 </div>
 
