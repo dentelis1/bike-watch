@@ -14,7 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bike_reports: {
+        Row: {
+          brand: string | null
+          color: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          images: string[]
+          model: string | null
+          stolen_date: string | null
+          stolen_location: string | null
+          unique_features: string | null
+        }
+        Insert: {
+          brand?: string | null
+          color?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          images?: string[]
+          model?: string | null
+          stolen_date?: string | null
+          stolen_location?: string | null
+          unique_features?: string | null
+        }
+        Update: {
+          brand?: string | null
+          color?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          images?: string[]
+          model?: string | null
+          stolen_date?: string | null
+          stolen_location?: string | null
+          unique_features?: string | null
+        }
+        Relationships: []
+      }
+      bike_sightings: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          id: string
+          image: string
+          location: string
+          notes: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          image: string
+          location: string
+          notes?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          image?: string
+          location?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
+      match_events: {
+        Row: {
+          bike_id: string
+          created_at: string
+          id: string
+          match_confidence: number
+          notification_sent: boolean
+          sighting_id: string
+        }
+        Insert: {
+          bike_id: string
+          created_at?: string
+          id?: string
+          match_confidence?: number
+          notification_sent?: boolean
+          sighting_id: string
+        }
+        Update: {
+          bike_id?: string
+          created_at?: string
+          id?: string
+          match_confidence?: number
+          notification_sent?: boolean
+          sighting_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_events_bike_id_fkey"
+            columns: ["bike_id"]
+            isOneToOne: false
+            referencedRelation: "bike_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_events_sighting_id_fkey"
+            columns: ["sighting_id"]
+            isOneToOne: false
+            referencedRelation: "bike_sightings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

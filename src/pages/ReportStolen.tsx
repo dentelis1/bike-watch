@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BikeReport {
   images: File[];
@@ -46,29 +47,37 @@ const ReportStolen = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     
-    // Simulate API call - in production, this would save to database
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    // Store in localStorage for MVP demo
-    const reports = JSON.parse(localStorage.getItem("bikeReports") || "[]");
-    const newReport = {
-      id: crypto.randomUUID(),
-      ...report,
-      images: report.images.map((f) => f.name), // Store filenames for MVP
-      createdAt: new Date().toISOString(),
-      type: "stolen",
-    };
-    reports.push(newReport);
-    localStorage.setItem("bikeReports", JSON.stringify(reports));
-    
-    setIsSubmitting(false);
-    
-    toast({
-      title: "Report Submitted",
-      description: "We'll notify you if your bike is spotted.",
-    });
-    
-    navigate("/my-reports");
+    try {
+      const { error } = await supabase.from("bike_reports").insert({
+        images: report.images.map((f) => f.name),
+        brand: report.brand || null,
+        model: report.model || null,
+        color: report.color || null,
+        unique_features: report.uniqueFeatures || null,
+        stolen_date: report.stolenDate || null,
+        stolen_location: report.stolenLocation.address || null,
+        contact_email: report.contactEmail || null,
+        contact_phone: report.contactPhone || null,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Report Submitted",
+        description: "We'll notify you if your bike is spotted.",
+      });
+      
+      navigate("/my-reports");
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const canProceed = () => {
