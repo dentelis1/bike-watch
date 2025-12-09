@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 210 40% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 40% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 11%;
+
+    --primary: 175 60% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 20% 94%;
+    --secondary-foreground: 210 40% 25%;
+
+    --muted: 210 15% 92%;
+    --muted-foreground: 210 15% 45%;
+
+    --accent: 15 85% 57%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 175 60% 35%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --success: 145 65% 42%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(175 60% 35%) 0%, hsl(190 70% 40%) 50%, hsl(210 60% 45%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(15 85% 57%) 0%, hsl(25 90% 55%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 20% 98%) 100%);
+    
+    --shadow-sm: 0 1px 2px 0 hsl(210 20% 11% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(210 20% 11% / 0.08), 0 2px 4px -2px hsl(210 20% 11% / 0.05);
+    --shadow-lg: 0 10px 15px -3px hsl(210 20% 11% / 0.1), 0 4px 6px -4px hsl(210 20% 11% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(210 20% 11% / 0.1), 0 8px 10px -6px hsl(210 20% 11% / 0.05);
+    --shadow-glow: 0 0 40px hsl(175 60% 35% / 0.2);
+    --shadow-accent-glow: 0 0 30px hsl(15 85% 57% / 0.3);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 210 40% 8%;
+    --foreground: 210 20% 95%;
+
+    --card: 210 35% 12%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 210 35% 12%;
+    --popover-foreground: 210 20% 95%;
+
+    --primary: 175 55% 45%;
+    --primary-foreground: 210 40% 8%;
+
+    --secondary: 210 30% 18%;
+    --secondary-foreground: 210 20% 85%;
+
+    --muted: 210 30% 20%;
+    --muted-foreground: 210 15% 55%;
+
+    --accent: 15 80% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 30% 22%;
+    --input: 210 30% 22%;
+    --ring: 175 55% 45%;
+
+    --success: 145 60% 45%;
+    --warning: 38 85% 50%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .text-gradient-hero {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .bg-gradient-accent {
+    background: var(--gradient-accent);
+  }
+
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .shadow-accent-glow {
+    box-shadow: var(--shadow-accent-glow);
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 4s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
